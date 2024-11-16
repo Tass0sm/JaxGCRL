@@ -9,7 +9,7 @@ from brax.io import model
 from pyinstrument import Profiler
 
 
-from src.train import train
+from jaxgcrl.src.train import train
 from utils import MetricsRecorder, get_env_config, create_env, create_eval_env, create_parser, render
 
 

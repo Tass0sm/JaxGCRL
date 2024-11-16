@@ -240,7 +240,7 @@ if __name__ == "__main__":
 
     # Environment setup    
     if args.env_id == "ant":
-        from envs.ant import Ant
+        from jaxgcrl.envs.ant import Ant
         env = Ant(
             backend="spring",
             exclude_current_positions_from_observation=False,
@@ -252,7 +252,7 @@ if __name__ == "__main__":
         args.goal_end_idx = 2
 
     elif "maze" in args.env_id:
-        from envs.ant_maze import AntMaze
+        from jaxgcrl.envs.ant_maze import AntMaze
         env = AntMaze(
             backend="spring",
             exclude_current_positions_from_observation=False,

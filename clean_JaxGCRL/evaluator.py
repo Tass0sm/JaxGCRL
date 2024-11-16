@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import flax.linen as nn
 
 from brax import envs
-from envs.ant import Ant
+from jaxgcrl.envs.ant import Ant
 from typing import NamedTuple
 from collections import namedtuple
 

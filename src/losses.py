@@ -3,12 +3,13 @@ from typing import Any, NamedTuple
 from brax.training import types
 from optax import sigmoid_binary_cross_entropy
 
-from src import networks as crl_networks
 from brax.training.types import Params
 from brax.training.types import PRNGKey
 import jax
 import jax.numpy as jnp
-from src import losses_utils
+
+from jaxgcrl.src import networks as crl_networks
+from jaxgcrl.src import losses_utils
 
 
 Transition = types.Transition

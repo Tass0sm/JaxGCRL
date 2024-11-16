@@ -4,7 +4,7 @@ from brax.io import mjcf
 import mujoco
 import jax
 from jax import numpy as jnp
-from envs.manipulation.arm_envs import ArmEnvs
+from jaxgcrl.envs.manipulation.arm_envs import ArmEnvs
 
 """
 Binpick-Hard: Move a cube from a random location in the blue bin to a random location in the red bin.

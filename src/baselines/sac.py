@@ -42,8 +42,9 @@ import jax
 import jax.numpy as jnp
 import optax
 
-from src.evaluator import CrlEvaluator
-from src.replay_buffer import QueueBase, Sample
+from jaxgcrl.src.evaluator import CrlEvaluator
+from jaxgcrl.src.replay_buffer import QueueBase, Sample
+
 
 Metrics = types.Metrics
 # Transition = types.Transition
@@ -133,9 +134,9 @@ class TrajectoryUniformSamplingQueue(QueueBase[Sample], Generic[Sample]):
         return buffer_state.replace(key=key), transitions
 
     @staticmethod
-    @functools.partial(jax.jit, static_argnames=["config", "env"])
-    def flatten_crl_fn(config, env, transition: Transition, sample_key: PRNGKey) -> Transition:
-        if config.use_her:
+    @functools.partial(jax.jit, static_argnames=["use_her", "env"])
+    def flatten_crl_fn(use_her, env, transition: Transition, sample_key: PRNGKey) -> Transition:
+        if use_her:
             # Find truncation indexes if present
             seq_len = transition.observation.shape[0]
             arrangement = jnp.arange(seq_len)
@@ -258,6 +259,7 @@ def train(
     progress_fn: Callable[[int, Metrics], None] = lambda *args: None,
     multiplier_num_sgd_steps: int = 1,
     unroll_length: int = 50,
+    use_her: bool = False,
     config: NamedTuple = None,
     checkpoint_logdir: Optional[str] = None,
     eval_env: Optional[envs.Env] = None,
@@ -535,7 +537,7 @@ def train(
 
         batch_keys = jax.random.split(sampling_key, transitions.observation.shape[0])
         transitions = jax.vmap(TrajectoryUniformSamplingQueue.flatten_crl_fn, in_axes=(None, None, 0, 0))(
-            config, env, transitions, batch_keys
+            use_her, env, transitions, batch_keys
         )
 
         # Shuffle transitions and reshape them into (number_of_sgd_steps, batch_size, ...)
@@ -594,6 +596,7 @@ def train(
     ) -> Tuple[TrainingState, envs.State, ReplayBufferState, Metrics]:
         nonlocal training_walltime
         t = time.time()
+
         (training_state, env_state, buffer_state, metrics) = training_epoch(
             training_state, env_state, buffer_state, key
         )

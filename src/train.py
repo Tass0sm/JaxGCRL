@@ -19,10 +19,10 @@ from brax.training.types import Params
 from brax.v1 import envs as envs_v1
 from jax import numpy as jnp
 
-from src import losses as crl_losses
-from src import networks as crl_networks
-from src.evaluator import CrlEvaluator
-from src.replay_buffer import ReplayBufferState, Transition, TrajectoryUniformSamplingQueue
+from jaxgcrl.src import losses as crl_losses
+from jaxgcrl.src import networks as crl_networks
+from jaxgcrl.src.evaluator import CrlEvaluator
+from jaxgcrl.src.replay_buffer import ReplayBufferState, Transition, TrajectoryUniformSamplingQueue
 
 
 Metrics = types.Metrics

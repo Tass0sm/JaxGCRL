@@ -4,7 +4,7 @@ from brax.io import mjcf
 import mujoco
 import jax
 from jax import numpy as jnp
-from envs.manipulation.arm_envs import ArmEnvs
+from jaxgcrl.envs.manipulation.arm_envs import ArmEnvs
 
 """
 Reach: Move end of arm to random goal.

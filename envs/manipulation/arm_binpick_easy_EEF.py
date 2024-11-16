@@ -4,7 +4,7 @@ from brax.io import mjcf
 import mujoco
 import jax
 from jax import numpy as jnp
-from envs.manipulation.arm_envs import ArmEnvs
+from jaxgcrl.envs.manipulation.arm_envs import ArmEnvs
 
 """
 Binpick-Easy (EEF): Move a cube from a random location in the blue bin to the center of the red bin, controlling the EEF position directly. There are

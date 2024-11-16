@@ -9,23 +9,23 @@ from brax.io import html
 from matplotlib import pyplot as plt
 import wandb
 
-from envs.ant import Ant
-from envs.half_cheetah import Halfcheetah
-from envs.reacher import Reacher
-from envs.pusher import Pusher, PusherReacher
-from envs.pusher2 import Pusher2
-from envs.ant_ball import AntBall
-from envs.ant_maze import AntMaze
-from envs.humanoid import Humanoid
-from envs.humanoid_maze import HumanoidMaze
-from envs.ant_push import AntPush
-from envs.manipulation.arm_reach import ArmReach
-from envs.manipulation.arm_grasp import ArmGrasp
-from envs.manipulation.arm_push_easy import ArmPushEasy
-from envs.manipulation.arm_push_hard import ArmPushHard
-from envs.manipulation.arm_binpick_easy import ArmBinpickEasy
-from envs.manipulation.arm_binpick_hard import ArmBinpickHard
-from envs.simple_maze import SimpleMaze
+from jaxgcrl.envs.ant import Ant
+from jaxgcrl.envs.half_cheetah import Halfcheetah
+from jaxgcrl.envs.reacher import Reacher
+from jaxgcrl.envs.pusher import Pusher, PusherReacher
+from jaxgcrl.envs.pusher2 import Pusher2
+from jaxgcrl.envs.ant_ball import AntBall
+from jaxgcrl.envs.ant_maze import AntMaze
+from jaxgcrl.envs.humanoid import Humanoid
+from jaxgcrl.envs.humanoid_maze import HumanoidMaze
+from jaxgcrl.envs.ant_push import AntPush
+from jaxgcrl.envs.manipulation.arm_reach import ArmReach
+from jaxgcrl.envs.manipulation.arm_grasp import ArmGrasp
+from jaxgcrl.envs.manipulation.arm_push_easy import ArmPushEasy
+from jaxgcrl.envs.manipulation.arm_push_hard import ArmPushHard
+from jaxgcrl.envs.manipulation.arm_binpick_easy import ArmBinpickEasy
+from jaxgcrl.envs.manipulation.arm_binpick_hard import ArmBinpickHard
+from jaxgcrl.envs.simple_maze import SimpleMaze
 
 
 def create_parser():
