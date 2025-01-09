@@ -164,15 +164,15 @@ class TrajectoryUniformSamplingQueue(QueueBase[Sample], Generic[Sample]):
         return buffer_state.replace(key=key), transitions
 
     @staticmethod
-    @functools.partial(jax.jit, static_argnames=["config", "env"])
-    def flatten_crl_fn(config, env, transition: Transition, sample_key: PRNGKey) -> Transition:
+    @functools.partial(jax.jit, static_argnames=["discounting", "env"])
+    def flatten_crl_fn(discounting, env, transition: Transition, sample_key: PRNGKey) -> Transition:
         goal_key, transition_key = jax.random.split(sample_key)
 
         # Because it's vmaped transition obs.shape is of shape (transitions,obs_dim)
         seq_len = transition.observation.shape[0]
         arrangement = jnp.arange(seq_len)
         is_future_mask = jnp.array(arrangement[:, None] < arrangement[None], dtype=jnp.float32)
-        discount = config.discounting ** jnp.array(arrangement[None] - arrangement[:, None], dtype=jnp.float32)
+        discount = discounting ** jnp.array(arrangement[None] - arrangement[:, None], dtype=jnp.float32)
         probs = is_future_mask * discount
         single_trajectories = jnp.concatenate(
             [transition.extras["state_extras"]["seed"][:, jnp.newaxis].T] * seq_len, axis=0

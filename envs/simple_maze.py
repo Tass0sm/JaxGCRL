@@ -18,6 +18,12 @@ RESET = R = 'r'
 GOAL = G = 'g'
 
 
+OPEN_MAZE = [[1, 1, 1, 1, 1],
+             [1, R, G, G, 1],
+             [1, 0, 0, G, 1],
+             [1, G, G, G, 1],
+             [1, 1, 1, 1, 1]]
+
 U_MAZE = [[1, 1, 1, 1, 1],
           [1, R, G, G, 1],
           [1, 1, 1, G, 1],
@@ -95,6 +101,8 @@ def make_maze(maze_layout_name, maze_size_scaling):
         maze_layout = BIG_MAZE_EVAL
     elif maze_layout_name == "hardest_maze":
         maze_layout = HARDEST_MAZE
+    elif maze_layout_name == "open_maze":
+        maze_layout = OPEN_MAZE
     else:
         raise ValueError(f"Unknown maze layout: {maze_layout_name}")
     
@@ -123,7 +131,7 @@ def make_maze(maze_layout_name, maze_size_scaling):
                     material="",
                     contype="1",
                     conaffinity="1",
-                    rgba="0.7 0.5 0.3 1.0",
+                    rgba="0.5 0.5 0.5 1.0",
                 )
 
     tree = tree.getroot()
@@ -146,7 +154,7 @@ class SimpleMaze(PipelineEnv):
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=False,
         backend="generalized",
-        maze_layout_name="u_maze",
+        maze_layout_name="open_maze",
         maze_size_scaling=4.0,
         **kwargs,
     ):
@@ -197,7 +205,8 @@ class SimpleMaze(PipelineEnv):
         )
         
         self.state_dim = 4
-        self.goal_indices = jnp.array([0, 1])
+        self.pos_indices = jnp.array([0, 1])
+        self.goal_indices = jnp.array([4, 5])
         self.goal_dist = 0.5
 
         if self._use_contact_forces:
@@ -303,7 +312,6 @@ class SimpleMaze(PipelineEnv):
         """Observe ant body position and velocities."""
         qpos = pipeline_state.q[:-2]
         qvel = pipeline_state.qd[:-2]
-
 
         target_pos = pipeline_state.x.pos[-1][:2]
 

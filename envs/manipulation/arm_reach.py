@@ -15,8 +15,9 @@ See _get_obs() and ArmEnvs._convert_action() for details.
 """
 class ArmReach(ArmEnvs):
     def _get_xml_path(self):
-        return "envs/assets/panda_reach.xml"
-    
+        return "/home/tassos/phd/research/second-project/jaxgcrl/jaxgcrl/envs/assets/panda_reach.xml"
+        # return "envs/assets/panda_reach.xml"
+
     @property
     def action_size(self) -> int:
         return 4 # Override default (actuator count)

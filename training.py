@@ -8,9 +8,8 @@ import wandb
 from brax.io import model
 from pyinstrument import Profiler
 
-
 from jaxgcrl.src.train import train
-from utils import MetricsRecorder, get_env_config, create_env, create_eval_env, create_parser, render
+from jaxgcrl.utils import MetricsRecorder, get_env_config, create_env, create_eval_env, create_parser, render
 
 
 def main(args):

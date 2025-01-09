@@ -456,7 +456,7 @@ def train(
                 current_key,
                 extra_fields=(
                     "truncation",
-                    "seed",
+                    # "seed",
                 ),
             )
             return (env_state, next_key), transition

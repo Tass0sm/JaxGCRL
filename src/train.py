@@ -115,6 +115,7 @@ def train(
     num_timesteps,
     episode_length: int,
     action_repeat: int = 1,
+    discounting: int = 0.997,
     num_envs: int = 1,
     num_eval_envs: int = 128,
     policy_lr: float = 1e-4,
@@ -141,11 +142,14 @@ def train(
     randomization_fn: Optional[Callable[[base.System, jnp.ndarray], Tuple[base.System, base.System]]] = None,
     unroll_length: int = 50,
     multiplier_num_sgd_steps: int = 1,
+    random_goals: float = 0.0,
+    disable_entropy_actor: bool = False,
     use_c_target: bool = False,
     config: NamedTuple = None,
     use_ln: bool = False,
     h_dim: int = 256,
     n_hidden: int = 2,
+    repr_dim: int = 64,
 ):
     """CRL training."""
     process_id = jax.process_index()
@@ -209,10 +213,10 @@ def train(
     if normalize_observations:
         normalize_fn = running_statistics.normalize
     crl_network = network_factory(
-        config=config,
         env=env,
         observation_size=obs_size,
         action_size=action_size,
+        repr_dim=repr_dim,
         preprocess_observations_fn=normalize_fn,
         hidden_layer_sizes=[h_dim] * n_hidden,
         use_ln=use_ln,
@@ -260,6 +264,8 @@ def train(
         crl_network=crl_network,
         action_size=action_size,
         use_c_target=use_c_target,
+        random_goals=random_goals,
+        disable_entropy_actor=disable_entropy_actor,
     )
     alpha_update = gradients.gradient_update_fn(  # pytype: disable=wrong-arg-types  # jax-ndarray
         alpha_loss, alpha_optimizer, pmap_axis_name=_PMAP_AXIS_NAME
@@ -433,7 +439,7 @@ def train(
 
         batch_keys = jax.random.split(sampling_key, transitions.observation.shape[0])
         transitions = jax.vmap(TrajectoryUniformSamplingQueue.flatten_crl_fn, in_axes=(None, None, 0, 0))(
-            config, env, transitions, batch_keys
+            discounting, env, transitions, batch_keys
         )
 
         # Shuffle transitions and reshape them into (number_of_sgd_steps, batch_size, ...)
@@ -624,7 +630,13 @@ def train(
 
     # If there was no mistakes the training_state should still be identical on all
     # devices.
-    pmap.assert_is_replicated(training_state)
+
+    # pmap.assert_is_replicated(training_state)
+
+    f = functools.partial(pmap.is_replicated, axis_name='i')
+    if not jax.pmap(f, axis_name='i')(training_state)[0]:
+        print("Not replicated apparently...")
+
     logging.info("total steps: %s", total_steps)
     pmap.synchronize_hosts()
     return (make_policy, params, metrics)

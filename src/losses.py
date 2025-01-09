@@ -27,6 +27,8 @@ def make_losses(
     action_size: int,
     use_c_target: bool = False,
     exploration_coef: float = 0.0,
+    random_goals: float = 0.0,
+    disable_entropy_actor: bool = False,
 ):
     """Creates the CRL losses."""
 
@@ -278,7 +280,7 @@ def make_losses(
 
         state = obs[:, :obs_dim]
 
-        random_goal_mask = jax.random.bernoulli(goal_key, config.random_goals, shape=(future_state.shape[0], 1))
+        random_goal_mask = jax.random.bernoulli(goal_key, random_goals, shape=(future_state.shape[0], 1))
         future_rolled = jnp.roll(future_state, 1, axis=0)
         future_state = jnp.where(random_goal_mask, future_rolled, future_state)
         future_action = transitions.extras["future_action"]
@@ -352,7 +354,7 @@ def make_losses(
         else:
             raise ValueError(f"Unknown energy function: {energy_fn}")
 
-        if config.disable_entropy_actor:
+        if disable_entropy_actor:
             actor_loss = -jnp.mean(min_q)
         else:
             actor_loss = alpha * log_prob - jnp.mean(min_q)

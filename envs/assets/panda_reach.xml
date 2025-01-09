@@ -86,6 +86,7 @@
 
   <worldbody>
     <light name="top" pos="0 0 2" mode="trackcom"/>
+    <camera name="overview" pos="1 1 0.5" xyaxes="-1 1 0 0 0 1" fovy="90"/>
     <body name="link0" childclass="panda">
       <geom mesh="link0_0" rgba="0.901961 0.921569 0.929412 1" class="visual"/>
       <geom mesh="link0_1" rgba="0.25 0.25 0.25 1" class="visual"/>

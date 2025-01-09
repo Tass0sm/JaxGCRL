@@ -18,6 +18,12 @@ RESET = R = 'r'
 GOAL = G = 'g'
 
 
+OPEN_MAZE = [[1, 1, 1, 1, 1],
+             [1, R, G, G, 1],
+             [1, 0, 0, G, 1],
+             [1, G, G, G, 1],
+             [1, 1, 1, 1, 1]]
+
 U_MAZE = [[1, 1, 1, 1, 1],
           [1, R, G, G, 1],
           [1, 1, 1, G, 1],
@@ -30,7 +36,13 @@ U_MAZE_EVAL = [[1, 1, 1, 1, 1],
                [1, G, G, G, 1],
                [1, 1, 1, 1, 1]]
 
-
+CROSS = [[0, 0, 1, 1, 1, 0, 0],
+         [0, 0, 1, R, 1, 0, 0],
+         [1, 1, 1, 0, 1, 1, 1],
+         [1, G, 0, 0, 0, G, 1],
+         [1, 1, 1, 0, 1, 1, 1],
+         [0, 0, 1, R, 1, 0, 0],
+         [0, 0, 1, 1, 1, 0, 0]]
 
 BIG_MAZE = [[1, 1, 1, 1, 1, 1, 1, 1],
             [1, R, G, 1, 1, G, G, 1],
@@ -85,10 +97,14 @@ def find_goals(structure, size_scaling):
 
 # Create a xml with maze and a list of possible goal positions
 def make_maze(maze_layout_name, maze_size_scaling):
-    if maze_layout_name == "u_maze":
+    if maze_layout_name == "open_maze":
+        maze_layout = OPEN_MAZE
+    elif maze_layout_name == "u_maze":
         maze_layout = U_MAZE
     elif maze_layout_name == "u_maze_eval":
         maze_layout = U_MAZE_EVAL
+    elif maze_layout_name == "cross":
+        maze_layout = CROSS
     elif maze_layout_name == "big_maze":
         maze_layout = BIG_MAZE
     elif maze_layout_name == "big_maze_eval":
@@ -123,7 +139,7 @@ def make_maze(maze_layout_name, maze_size_scaling):
                     material="",
                     contype="1",
                     conaffinity="1",
-                    rgba="0.7 0.5 0.3 1.0",
+                    rgba="0.5 0.5 0.5 1.0",
                 )
 
     tree = tree.getroot()
@@ -146,9 +162,9 @@ class AntMaze(PipelineEnv):
         reset_noise_scale=0.1,
         exclude_current_positions_from_observation=False,
         backend="generalized",
-        maze_layout_name="u_maze",
+        maze_layout_name="cross",
         maze_size_scaling=4.0,
-        dense_reward:bool=False,
+        dense_reward: bool = False,
         **kwargs,
     ):
         xml_string, possible_starts, possible_goals = make_maze(maze_layout_name, maze_size_scaling)
@@ -197,8 +213,10 @@ class AntMaze(PipelineEnv):
             exclude_current_positions_from_observation
         )
         self.dense_reward = dense_reward
+
         self.state_dim = 29
-        self.goal_indices = jnp.array([0, 1])
+        self.pos_indices = jnp.array([0, 1])
+        self.goal_indices = jnp.array([29, 30])
         self.goal_dist = 0.5
 
         if self._use_contact_forces:
@@ -251,6 +269,7 @@ class AntMaze(PipelineEnv):
     # Todo rename seed to traj_id
     def step(self, state: State, action: jax.Array) -> State:
         """Run one timestep of the environment's dynamics."""
+
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(pipeline_state0, action)
 

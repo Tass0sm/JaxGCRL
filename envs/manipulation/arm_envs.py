@@ -54,7 +54,7 @@ class ArmEnvs(PipelineEnv):
 
     def step(self, state: State, action: jax.Array) -> State:
         """Run one timestep of the environment's dynamics."""
-        
+
         # Run mujoco step
         pipeline_state0 = state.pipeline_state
         if "EEF" in self.env_name:
