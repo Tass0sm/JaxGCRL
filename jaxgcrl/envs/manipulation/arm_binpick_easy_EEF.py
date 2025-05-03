@@ -1,3 +1,4 @@
+import os
 import jax
 from brax import base
 from jax import numpy as jnp
@@ -16,7 +17,7 @@ See _get_obs() and ArmEnvs._convert_action() for details.
 
 class ArmBinpickEasyEEF(ArmEnvs):
     def _get_xml_path(self):
-        return "envs/assets/panda_binpick_easy_EEF.xml"
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'assets', "panda_binpick_easy_EEF.xml")
 
     @property
     def action_size(self) -> int:
@@ -27,7 +28,7 @@ class ArmBinpickEasyEEF(ArmEnvs):
         self.env_name = "arm_binpick_easy_EEF"
         self.episode_length = 150
 
-        self.goal_indices = jnp.array([0, 1, 2])  # Cube position
+        self.goal_indices = (0, 1, 2)  # Cube position
         self.completion_goal_indices = jnp.array([0, 1, 2])  # Identical
         self.state_dim = 11
         self.goal_reach_thresh = 0.1

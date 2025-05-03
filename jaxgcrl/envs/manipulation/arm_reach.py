@@ -1,3 +1,4 @@
+import os
 import jax
 from brax import base
 from jax import numpy as jnp
@@ -15,7 +16,7 @@ See _get_obs() and ArmEnvs._convert_action() for details.
 
 class ArmReach(ArmEnvs):
     def _get_xml_path(self):
-        return "envs/assets/panda_reach.xml"
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'assets', "panda_reach.xml")
 
     @property
     def action_size(self) -> int:
@@ -26,9 +27,11 @@ class ArmReach(ArmEnvs):
         self.env_name = "arm_reach"
         self.episode_length = 100
 
-        self.goal_indices = jnp.array([7, 8, 9])  # End-effector position
-        self.completion_goal_indices = jnp.array([7, 8, 9])  # Identical
+        self.pos_indices = jnp.array([7, 8, 9])  # End-effector position
+        self.goal_indices = jnp.array([13, 14, 15])  # End-effector position
+        self.completion_goal_indices = jnp.array([13, 14, 15])  # Identical
         self.state_dim = 13
+        self.goal_dist = 0.1
         self.goal_reach_thresh = 0.1
 
         self.arm_noise_scale = 0
@@ -47,6 +50,13 @@ class ArmReach(ArmEnvs):
         qd = jnp.zeros([self.sys.qd_size()])
         return q, qd
 
+    def _random_target(self, rng):
+        """
+        Generate goals in a box. x: [-0.2, 0.2], y: [0.3, 0.7], z: [0.1, 0.5]
+        """
+        goal = jnp.array([0, 0.5, 0.3]) + self.goal_noise_scale * jax.random.uniform(rng, [3], minval=-1)
+        return goal
+
     def _get_initial_goal(self, pipeline_state: base.State, rng):
         """
         Generate goals in a box. x: [-0.2, 0.2], y: [0.3, 0.7], z: [0.1, 0.5]
@@ -56,7 +66,7 @@ class ArmReach(ArmEnvs):
 
     def _compute_goal_completion(self, obs, goal):
         # Goal occupancy: is the end of the arm close enough to the goal?
-        eef_pos = obs[self.completion_goal_indices]
+        eef_pos = obs[self.pos_indices]
         goal_eef_pos = goal[:3]
         dist = jnp.linalg.norm(eef_pos - goal_eef_pos)
 
@@ -65,6 +75,14 @@ class ArmReach(ArmEnvs):
         success_hard = jnp.array(dist < 0.03, dtype=float)
 
         return success, success_easy, success_hard
+
+    def reached_goal(self, obs: jax.Array, threshold: float = 0.1):
+        # Goal occupancy: is the end of the arm close enough to the goal?
+        eef_pos = obs[..., self.pos_indices]
+        goal_eef_pos = obs[..., self.goal_indices]
+        dist = jnp.linalg.norm(eef_pos - goal_eef_pos)
+        reached = jnp.array(dist < threshold, dtype=float)
+        return reached
 
     def _update_goal_visualization(self, pipeline_state: base.State, goal: jax.Array) -> base.State:
         updated_q = pipeline_state.q.at[:3].set(goal)  # Only set the position, not orientation
@@ -91,3 +109,4 @@ class ArmReach(ArmEnvs):
     def _get_arm_angles(self, pipeline_state: base.State) -> jax.Array:
         q_indices = jnp.arange(7, 14)
         return pipeline_state.q[q_indices]
+

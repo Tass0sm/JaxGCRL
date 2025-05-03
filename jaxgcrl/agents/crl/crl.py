@@ -192,6 +192,9 @@ class CRL:
             action_repeat=config.action_repeat,
         )
 
+        if eval_env is None:
+            eval_env = unwrapped_env
+
         eval_env = TrajectoryIdWrapper(eval_env)
         eval_env = envs.training.wrap(
             eval_env,

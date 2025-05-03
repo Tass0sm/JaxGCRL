@@ -31,6 +31,8 @@ class ArmEnvs(PipelineEnv):
     def reset(self, rng: jax.Array) -> State:
         """Resets the environment to an initial state."""
 
+        # breakpoint()
+
         # Initialize simulator state
         rng, subkey = jax.random.split(rng)
         q, qd = self._get_initial_state(subkey)  # Injects noise to avoid overfitting/open loop control

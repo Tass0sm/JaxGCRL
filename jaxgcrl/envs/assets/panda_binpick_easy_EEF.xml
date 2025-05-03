@@ -86,6 +86,8 @@
 
   <worldbody>
     <light name="top" pos="0 0 2" mode="trackcom"/>
+    <camera name="overview" pos="0.5 0.15 0.5" xyaxes="1 0.5 0 0 0 1" fovy="120"/>
+
     <body name="binA" pos="-0.17 0.6 0">
       <geom name="binA1" pos="0 -0.14 0.033" size="0.145 0.005 0.033" type="box" rgba="0 0.2 0.8 1" contype="0" conaffinity="0"/>
       <geom name="binA2" pos="0 0.14 0.033" size="0.145 0.005 0.033" type="box" rgba="0 0.2 0.8 1" contype="0" conaffinity="0"/>

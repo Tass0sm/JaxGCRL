@@ -113,9 +113,9 @@ def flatten_batch(config, env, transition: Transition, sample_key: PRNGKey) -> T
         binary_mask = jnp.logical_and(non_zero_columns, non_zero_columns)
 
         new_goals = (
-            binary_mask[:, None] * transition.observation[new_goals_idx][:, env.goal_indices]
+            binary_mask[:, None] * transition.observation[new_goals_idx][:, env.pos_indices]
             + jnp.logical_not(binary_mask)[:, None]
-            * transition.observation[new_goals_idx][:, env.state_dim :]
+            * transition.observation[new_goals_idx][:, env.goal_indices]
         )
 
         # Transform observation
@@ -123,7 +123,7 @@ def flatten_batch(config, env, transition: Transition, sample_key: PRNGKey) -> T
         new_obs = jnp.concatenate([state, new_goals], axis=1)
 
         # Recalculate reward
-        dist = jnp.linalg.norm(new_obs[:, env.state_dim :] - new_obs[:, env.goal_indices], axis=1)
+        dist = jnp.linalg.norm(new_obs[:, env.goal_indices] - new_obs[:, env.pos_indices], axis=1)
         new_reward = jnp.array(dist < env.goal_reach_thresh, dtype=float)
 
         # Transform next observation
@@ -631,17 +631,19 @@ class SAC:
 
         if not eval_env:
             eval_env = env
+        else:
+            eval_env = TrajectoryIdWrapper(eval_env)
+            eval_env = wrap_for_training(
+                eval_env,
+                episode_length=config.episode_length,
+                action_repeat=config.action_repeat,
+                randomization_fn=v_randomization_fn,
+            )
+
         if randomization_fn is not None:
             v_randomization_fn = functools.partial(
                 randomization_fn, rng=jax.random.split(eval_key, config.num_eval_envs)
             )
-        eval_env = TrajectoryIdWrapper(eval_env)
-        eval_env = wrap_for_training(
-            eval_env,
-            episode_length=config.episode_length,
-            action_repeat=config.action_repeat,
-            randomization_fn=v_randomization_fn,
-        )
 
         evaluator = Evaluator(
             eval_env,
